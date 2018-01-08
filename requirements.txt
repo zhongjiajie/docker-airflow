@@ -1,3 +1,0 @@
-# database
-mysqlclient>=1.3.12
-cx_Oracle>=6.0.3
