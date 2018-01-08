@@ -50,6 +50,8 @@ RUN set -ex \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
     && useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow \
+    && mkdir ~/.config/pip \
+    && echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.config/pip/pip.conf \
     && python -m pip install -U pip setuptools wheel \
     && pip install Cython \
     && pip install pytz \
