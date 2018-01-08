@@ -81,7 +81,6 @@ RUN set -ex \
 
 COPY script/entrypoint.sh /entrypoint.sh
 COPY config/airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
-COPY requirements.txt /requirements.txt
 
 RUN chown -R airflow: ${AIRFLOW_HOME}
 
