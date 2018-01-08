@@ -23,6 +23,8 @@ ENV LC_CTYPE en_US.UTF-8
 ENV LC_MESSAGES en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
+COPY oracle_rpm/oracle*.rpm /
+
 RUN set -ex \
     && buildDeps=' \
         python3-dev \
@@ -35,6 +37,7 @@ RUN set -ex \
         liblapack-dev \
         libpq-dev \
         git \
+        alien \
     ' \
     && apt-get update -yqq \
     && apt-get install -yqq --no-install-recommends \
@@ -46,10 +49,16 @@ RUN set -ex \
         rsync \
         netcat \
         locales \
+        libmysqlclient-dev \
+        libaio1 \
+        gcc \
+    && alien -i /oracle*.rpm \
     && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
     && useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow \
+    && mkdir ~/.config/pip \
+    && echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.config/pip/pip.conf \
     && python -m pip install -U pip setuptools wheel \
     && pip install Cython \
     && pip install pytz \
@@ -66,10 +75,12 @@ RUN set -ex \
         /var/tmp/* \
         /usr/share/man \
         /usr/share/doc \
-        /usr/share/doc-base
+        /usr/share/doc-base \
+        /oracle*.rpm
 
 COPY script/entrypoint.sh /entrypoint.sh
 COPY config/airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
+COPY requirements.txt /requirements.txt
 
 RUN chown -R airflow: ${AIRFLOW_HOME}
 
