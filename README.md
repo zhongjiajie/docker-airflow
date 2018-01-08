@@ -6,6 +6,15 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/puckel/docker-airflow.svg)]()
 [![Docker Stars](https://img.shields.io/docker/stars/puckel/docker-airflow.svg)]()
 
+项目基于[puckel/docker-airflow](https://github.com/puckel/docker-airflow)，进行了如下的增加
+
+* Python sdk
+  * cx-Oracle: 先在[Instant Client Downloads for Linux x86-64](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html)下载`basic devel sqlplus`三个rpm包，然后放入`/oracle_rpm`目录
+  * mysqlclient
+* Oracle-jdk8
+
+以下是原项目的README内容：
+
 This repository contains **Dockerfile** of [apache-airflow](https://github.com/apache/incubator-airflow) for [Docker](https://www.docker.com/)'s [automated build](https://registry.hub.docker.com/u/puckel/docker-airflow/) published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
 
 ## Informations

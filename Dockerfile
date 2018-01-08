@@ -26,6 +26,10 @@ ENV LC_ALL en_US.UTF-8
 COPY oracle_rpm/oracle*.rpm /
 
 RUN set -ex \
+    # add Oracle java ppa and key
+    && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" > /etc/apt/sources.list.d/webupd8team-java.list \
+    && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C2518248EEA14886 \
     && buildDeps=' \
         python3-dev \
         libkrb5-dev \
@@ -40,6 +44,10 @@ RUN set -ex \
         alien \
     ' \
     && apt-get update -yqq \
+    # install oracle java
+    && echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections \
+    && echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends oracle-java8-installer oracle-java8-set-default \
     && apt-get install -yqq --no-install-recommends \
         $buildDeps \
         python3-pip \
@@ -52,12 +60,20 @@ RUN set -ex \
         libmysqlclient-dev \
         libaio1 \
         gcc \
-    && alien -i /oracle*.rpm \
+        # only in dev
+        iputils-ping \
+        telnet \
+        vim \
     && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
     && useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow \
-    && mkdir ~/.config/pip \
+    # install oracle db basic
+    && alien -i /oracle*.rpm \
+    && echo "/usr/lib/oracle/12.2/client64/lib/" > /etc/ld.so.conf.d/oracle.conf \
+    && ldconfig \
+    # pypi tsinghua
+    && mkdir -p ~/.config/pip \
     && echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.config/pip/pip.conf \
     && python -m pip install -U pip setuptools wheel \
     && pip install Cython \
@@ -77,7 +93,8 @@ RUN set -ex \
         /usr/share/man \
         /usr/share/doc \
         /usr/share/doc-base \
-        /oracle*.rpm
+        /oracle*.rpm \
+        /var/cache/oracle-jdk8-installer
 
 COPY script/entrypoint.sh /entrypoint.sh
 COPY config/airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
