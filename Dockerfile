@@ -23,13 +23,16 @@ ENV LC_CTYPE en_US.UTF-8
 ENV LC_MESSAGES en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
-COPY oracle_rpm/oracle*.rpm /
+# Oracle
+ENV ORACLE_INSTANTCLIENT_MAJOR 12.2
+ENV ORACLE_INSTANTCLIENT_VERSION 12.2.0.1.0
+ENV ORACLE /usr/local/oracle
+ENV ORACLE_HOME $ORACLE/$ORACLE_INSTANTCLIENT_MAJOR/client64
+
+# Java home
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 RUN set -ex \
-    # add Oracle java ppa and key
-    && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" > /etc/apt/sources.list.d/webupd8team-java.list \
-    && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list \
-    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C2518248EEA14886 \
     && buildDeps=' \
         python3-dev \
         libkrb5-dev \
@@ -42,14 +45,30 @@ RUN set -ex \
         libpq-dev \
         git \
         alien \
+        gcc \
     ' \
+    # only need in dev env
+    && testDeps=' \
+        iputils-ping \
+        telnet \
+        wget \
+        vim \
+    ' \
+    # add Oracle java ppa and key
+    && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list \
+    && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 \
+    \
     && apt-get update -yqq \
     # install oracle java
+    && mkdir -p /usr/share/man/man1/ \
     && echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections \
     && echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes --no-install-recommends oracle-java8-installer oracle-java8-set-default \
+    && apt-get install -y oracle-java8-installer oracle-java8-set-default \
+    \
     && apt-get install -yqq --no-install-recommends \
         $buildDeps \
+        $testDeps \
         python3-pip \
         python3-requests \
         apt-utils \
@@ -59,22 +78,21 @@ RUN set -ex \
         locales \
         libmysqlclient-dev \
         libaio1 \
-        gcc \
-        # only in dev
-        iputils-ping \
-        telnet \
-        vim \
+    # install oracle db basic
+    && curl -L https://github.com/sergeymakinen/docker-oracle-instant-client/raw/assets/oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR-basic-$ORACLE_INSTANTCLIENT_VERSION-1.x86_64.rpm -o /oracle-basic.rpm \
+    && curl -L https://github.com/sergeymakinen/docker-oracle-instant-client/raw/assets/oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR-devel-$ORACLE_INSTANTCLIENT_VERSION-1.x86_64.rpm -o /oracle-devel.rpm \
+    && alien -i /oracle*.rpm \
+    && echo "$ORACLE_HOME/lib/" > /etc/ld.so.conf.d/oracle.conf \
+    && ldconfig \
+    \
+    # pypi tsinghua
+    && mkdir -p ~/.config/pip \
+    && echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.config/pip/pip.conf \
+    \
     && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
     && useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow \
-    # install oracle db basic
-    && alien -i /oracle*.rpm \
-    && echo "/usr/lib/oracle/12.2/client64/lib/" > /etc/ld.so.conf.d/oracle.conf \
-    && ldconfig \
-    # pypi tsinghua
-    && mkdir -p ~/.config/pip \
-    && echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.config/pip/pip.conf \
     && python -m pip install -U pip setuptools wheel \
     && pip install Cython \
     && pip install pytz \
