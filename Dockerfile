@@ -26,7 +26,7 @@ ENV LC_ALL en_US.UTF-8
 # Oracle
 ENV ORACLE_INSTANTCLIENT_MAJOR 12.2
 ENV ORACLE_INSTANTCLIENT_VERSION 12.2.0.1.0
-ENV ORACLE /usr/local/oracle
+ENV ORACLE /usr/lib/oracle
 ENV ORACLE_HOME $ORACLE/$ORACLE_INSTANTCLIENT_MAJOR/client64
 
 # Java home
@@ -79,6 +79,7 @@ RUN set -ex \
         libmysqlclient-dev \
         libaio1 \
     # install oracle db basic
+    # todo last to change baidu yun pan
     && curl -L https://github.com/sergeymakinen/docker-oracle-instant-client/raw/assets/oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR-basic-$ORACLE_INSTANTCLIENT_VERSION-1.x86_64.rpm -o /oracle-basic.rpm \
     && curl -L https://github.com/sergeymakinen/docker-oracle-instant-client/raw/assets/oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR-devel-$ORACLE_INSTANTCLIENT_VERSION-1.x86_64.rpm -o /oracle-devel.rpm \
     && alien -i /oracle*.rpm \
