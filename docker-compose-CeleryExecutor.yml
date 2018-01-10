@@ -1,11 +1,13 @@
 version: '2.1'
 services:
     redis:
-        image: 'redis:3.2.7'
+        image: 'redis'
+        restart: always
         # command: redis-server --requirepass redispass
 
     postgres:
-        image: postgres:9.6
+        image: postgres
+        restart: always
         environment:
             - POSTGRES_USER=airflow
             - POSTGRES_PASSWORD=airflow
@@ -16,7 +18,7 @@ services:
         #     - ./pgdata:/var/lib/postgresql/data/pgdata
 
     webserver:
-        image: puckel/docker-airflow:1.9.0
+        image: zhongjiajie/docker-airflow
         restart: always
         depends_on:
             - postgres
@@ -32,7 +34,7 @@ services:
         volumes:
             - ./dags:/usr/local/airflow/dags
         ports:
-            - "8080:8080"
+            - "20080:8080"
         command: webserver
         healthcheck:
             test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
@@ -41,7 +43,7 @@ services:
             retries: 3
 
     flower:
-        image: puckel/docker-airflow:1.9.0
+        image: zhongjiajie/docker-airflow
         restart: always
         depends_on:
             - redis
@@ -53,7 +55,7 @@ services:
         command: flower
 
     scheduler:
-        image: puckel/docker-airflow:1.9.0
+        image: zhongjiajie/docker-airflow
         restart: always
         depends_on:
             - webserver
@@ -70,7 +72,7 @@ services:
         command: scheduler
 
     worker:
-        image: puckel/docker-airflow:1.9.0
+        image: zhongjiajie/docker-airflow
         restart: always
         depends_on:
             - scheduler

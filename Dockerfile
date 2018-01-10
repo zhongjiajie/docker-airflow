@@ -103,6 +103,7 @@ RUN set -ex \
     && pip install apache-airflow[crypto,celery,postgres,hive,jdbc]==$AIRFLOW_VERSION \
     && pip install celery[redis]==4.0.2 \
     && pip install mysqlclient cx_Oracle \
+    && pip install git+https://github.com/cloudera/thrift_sasl \
     && apt-get purge --auto-remove -yqq $buildDeps \
     && apt-get clean \
     && rm -rf \
