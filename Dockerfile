@@ -36,7 +36,6 @@ RUN set -ex \
     && buildDeps=' \
         python3-dev \
         libkrb5-dev \
-        libsasl2-dev \
         libssl-dev \
         libffi-dev \
         build-essential \
@@ -77,6 +76,7 @@ RUN set -ex \
         rsync \
         netcat \
         locales \
+        libsasl2-dev \
         libmysqlclient-dev \
         libaio1 \
     # install oracle db basic
