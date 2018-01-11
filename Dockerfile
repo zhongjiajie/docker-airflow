@@ -107,7 +107,7 @@ RUN set -ex \
     && pip install celery[redis]==4.0.2 \
     && pip install thrift_sasl mysqlclient cx_Oracle \
     ## import thrift_sasl usually fail
-    && (python -c "import thrift_sasl" || pip uninstall -y thrift_sasl thrift sasl six & pip install thrift_sasl) \
+    && (python -c "import thrift_sasl" || pip uninstall -y thrift_sasl thrift sasl six && pip install thrift_sasl) \
     # && apt-get purge --auto-remove -yqq $buildDeps \
     && apt-get clean \
     && rm -rf \
