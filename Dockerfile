@@ -34,6 +34,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # beeline
 ENV BEELINE_HOME /usr/local/beeline
+ENV HIVE_VERSION 1.2.0
 COPY beeline $BEELINE_HOME
 
 RUN set -ex \
