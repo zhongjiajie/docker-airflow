@@ -88,8 +88,8 @@ RUN set -ex \
     && ldconfig \
     \
     # pypi tsinghua
-    && mkdir -p ~/.config/pip \
-    && echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.config/pip/pip.conf \
+    # && mkdir -p ~/.config/pip \
+    # && echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.config/pip/pip.conf \
     \
     && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen \
@@ -106,7 +106,7 @@ RUN set -ex \
     && pip install apache-airflow[crypto,celery,postgres,hive,jdbc]==$AIRFLOW_VERSION \
     && pip install celery[redis]==4.0.2 \
     && pip install thrift_sasl mysqlclient cx_Oracle \
-    && apt-get purge --auto-remove -yqq $buildDeps \
+    # && apt-get purge --auto-remove -yqq $buildDeps \
     && apt-get clean \
     && rm -rf \
         /var/lib/apt/lists/* \
