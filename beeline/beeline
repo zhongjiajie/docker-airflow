@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# set -o posix
+
+CLASSPATH=$(JARS=($BEELINE_HOME/lib/*.jar); IFS=:; echo "${JARS[*]}")
+echo "Starting beeline for $(cat $BEELINE_HOME/lib/hive.version)" >&2
+echo "CLASSPATH $CLASSPATH" >&2
+java -Dlog4j.configurationFile=$BEELINE_HOME/conf/log4j2.properties -cp $CLASSPATH org.apache.hive.beeline.BeeLine "$@"

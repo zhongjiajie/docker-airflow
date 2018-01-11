@@ -23,14 +23,18 @@ ENV LC_CTYPE en_US.UTF-8
 ENV LC_MESSAGES en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 
-# Oracle
+# Oracle client base
 ENV ORACLE_INSTANTCLIENT_MAJOR 12.2
 ENV ORACLE_INSTANTCLIENT_VERSION 12.2.0.1.0
 ENV ORACLE /usr/lib/oracle
 ENV ORACLE_HOME $ORACLE/$ORACLE_INSTANTCLIENT_MAJOR/client64
 
-# Java home
+# Java
 ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+
+# beeline
+ENV BEELINE_HOME /usr/local/beeline
+COPY beeline $BEELINE_HOME
 
 RUN set -ex \
     && buildDeps=' \
