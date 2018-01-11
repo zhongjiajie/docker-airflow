@@ -91,6 +91,18 @@ RUN set -ex \
     # && mkdir -p ~/.config/pip \
     # && echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.config/pip/pip.conf \
     \
+    # install beeline
+    && mkdir -p $BEELINE_HOME/lib $BEELINE_HOME/conf \
+    && echo "$HIVE_VERSION" > $BEELINE_HOME/lib/hive.version \
+    && (curl -L https://s3.amazonaws.com/stoic-public/hive-beeline-1.2.0-fetchSize.jar -o $BEELINE_HOME/lib/hive-beeline-1.2.0-fetchSize.jar || curl -L http://central.maven.org/maven2/org/apache/hive/hive-beeline/$HIVE_VERSION/hive-beeline-$HIVE_VERSION.jar -o $BEELINE_HOME/lib/hive-beeline-$HIVE_VERSION.jar) \
+    && curl -L http://central.maven.org/maven2/org/apache/hive/hive-jdbc/$HIVE_VERSION/hive-jdbc-$HIVE_VERSION-standalone.jar -o $BEELINE_HOME/lib/hive-jdbc-$HIVE_VERSION-standalone.jar \
+    && curl -L http://central.maven.org/maven2/commons-cli/commons-cli/1.2/commons-cli-1.2.jar -o $BEELINE_HOME/lib/commons-cli-1.2.jar \
+    && curl -L http://central.maven.org/maven2/org/apache/hadoop/hadoop-common/2.7.3/hadoop-common-2.7.3.jar -o $BEELINE_HOME/lib/hadoop-common-2.7.3.jar \
+    && curl -L http://central.maven.org/maven2/jline/jline/2.12/jline-2.12.jar -o $BEELINE_HOME/lib/jline-2.12.jar \
+    && curl -L http://central.maven.org/maven2/net/sf/supercsv/super-csv/2.2.0/super-csv-2.2.0.jar -o $BEELINE_HOME/lib/super-csv-2.2.0.jar \
+    && ln -s $BEELINE_HOME/beeline /usr/bin/beeline \
+    && chmod +x /usr/bin/beeline \
+    \
     && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
