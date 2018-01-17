@@ -61,17 +61,21 @@ RUN set -ex \
         ssh \
     ' \
     # add Oracle java ppa and key
-    && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list \
-    && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list \
-    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 \
-    \
+    # && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list \
+    # && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list \
+    # && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 \
+    # && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list \
+    # && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list \
+    # && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 \
+    # \
     && apt-get update -yqq \
     # install oracle java
-    && mkdir -p /usr/share/man/man1/ \
-    && echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections \
-    && echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections \
-    && apt-get install -y oracle-java8-installer oracle-java8-set-default \
-    \
+    # && mkdir -p /usr/share/man/man1/ \
+    # && echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+    # && echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections \
+    # && echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections \
+    # && apt-get install -y oracle-java8-installer oracle-java8-set-default \
+    # \
     && apt-get install -yqq --no-install-recommends \
         $buildDeps \
         $testDeps \
