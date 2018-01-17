@@ -4,8 +4,8 @@
 # BUILD: docker build --rm -t puckel/docker-airflow .
 # SOURCE: https://github.com/puckel/docker-airflow
 
-FROM python:3.6-slim
-MAINTAINER Puckel_
+FROM python:3.5-slim
+MAINTAINER zhongjiajie
 
 # Never prompts the user for choices on installation/configuration of packages
 ENV DEBIAN_FRONTEND noninteractive
@@ -58,6 +58,7 @@ RUN set -ex \
         wget \
         vim \
         sudo \
+        ssh \
     ' \
     # add Oracle java ppa and key
     && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list \
