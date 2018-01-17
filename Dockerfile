@@ -87,6 +87,8 @@ RUN set -ex \
         netcat \
         locales \
         libsasl2-dev \
+        # https://github.com/dropbox/PyHive/issues/161
+        libsasl2-modules \
         libmysqlclient-dev \
         libaio1 \
     # install oracle db basic
