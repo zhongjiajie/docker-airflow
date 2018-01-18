@@ -4,8 +4,8 @@
 # BUILD: docker build --rm -t puckel/docker-airflow .
 # SOURCE: https://github.com/puckel/docker-airflow
 
-FROM python:3.5-slim
-MAINTAINER zhongjiajie
+FROM python:3.6-slim
+LABEL MAINTAINER=zhongjiajie955@hotmail.com
 
 # Never prompts the user for choices on installation/configuration of packages
 ENV DEBIAN_FRONTEND noninteractive
@@ -61,21 +61,25 @@ RUN set -ex \
         ssh \
     ' \
     # add Oracle java ppa and key
-    # && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list \
-    # && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list \
-    # && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 \
-    # && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list \
-    # && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list \
-    # && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 \
-    # \
+    && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list \
+    && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 \
+    \
     && apt-get update -yqq \
     # install oracle java
-    # && mkdir -p /usr/share/man/man1/ \
-    # && echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
-    # && echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections \
-    # && echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections \
-    # && apt-get install -y oracle-java8-installer oracle-java8-set-default \
-    # \
+    # https://stackoverflow.com/a/46815898/7152658
+    # https://ubuntuforums.org/showthread.php?t=2374686&page=4
+    && mkdir -p /usr/share/man/man1/ \
+    && echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections \
+    && echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections \
+    && (apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default || true \
+    && cd /var/lib/dpkg/info \
+    && sed -i 's|JAVA_VERSION=8u151|JAVA_VERSION=8u162|' oracle-java8-installer.* \
+    && sed -i 's|PARTNER_URL=http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/|PARTNER_URL=http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/|' oracle-java8-installer.* \
+    && sed -i 's|SHA256SUM_TGZ="c78200ce409367b296ec39be4427f020e2c585470c4eed01021feada576f027f"|SHA256SUM_TGZ="68ec82d47fd9c2b8eb84225b6db398a72008285fafc98631b1ff8d2229680257"|' oracle-java8-installer.* \
+    && sed -i 's|J_DIR=jdk1.8.0_151|J_DIR=jdk1.8.0_162|' oracle-java8-installer.* \
+    && apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default) \
+    \
     && apt-get install -yqq --no-install-recommends \
         $buildDeps \
         $testDeps \
@@ -104,6 +108,7 @@ RUN set -ex \
     # && echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.config/pip/pip.conf \
     \
     # install beeline
+    # https://github.com/sutoiku/docker-beeline
     && mkdir -p $BEELINE_HOME/lib $BEELINE_HOME/conf \
     && echo "$HIVE_VERSION" > $BEELINE_HOME/lib/hive.version \
     && (curl -L https://s3.amazonaws.com/stoic-public/hive-beeline-1.2.0-fetchSize.jar -o $BEELINE_HOME/lib/hive-beeline-1.2.0-fetchSize.jar || curl -L http://central.maven.org/maven2/org/apache/hive/hive-beeline/$HIVE_VERSION/hive-beeline-$HIVE_VERSION.jar -o $BEELINE_HOME/lib/hive-beeline-$HIVE_VERSION.jar) \
@@ -129,7 +134,7 @@ RUN set -ex \
     && pip install pyasn1 \
     && pip install apache-airflow[crypto,celery,postgres,hive,jdbc]==$AIRFLOW_VERSION \
     && pip install celery[redis]==4.0.2 \
-    && pip install mysqlclient cx_Oracle \
+    && pip install mysqlclient cx_Oracle paramiko\
     # import thrift_sasl usually fail, impyla need specific versions libraries
     # thrift<=0.10.0 thrift_sasl<=0.2.1 sasl<=0.2.1 impyla<=0.14.0
     # https://github.com/cloudera/impyla/issues/268
