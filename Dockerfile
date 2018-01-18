@@ -162,4 +162,7 @@ EXPOSE 8080 5555 8793
 
 USER airflow
 WORKDIR ${AIRFLOW_HOME}
+
+RUN ssh-keygen -t rsa -b 2048 -N '' -C "airflow@airflow.com"
+
 ENTRYPOINT ["/entrypoint.sh"]
