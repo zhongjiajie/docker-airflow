@@ -72,13 +72,13 @@ RUN set -ex \
     && mkdir -p /usr/share/man/man1/ \
     && echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections \
     && echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections \
-    && (apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default || true \
+    && (apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default || (true \
     && cd /var/lib/dpkg/info \
     && sed -i 's|JAVA_VERSION=8u151|JAVA_VERSION=8u162|' oracle-java8-installer.* \
     && sed -i 's|PARTNER_URL=http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/|PARTNER_URL=http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/|' oracle-java8-installer.* \
     && sed -i 's|SHA256SUM_TGZ="c78200ce409367b296ec39be4427f020e2c585470c4eed01021feada576f027f"|SHA256SUM_TGZ="68ec82d47fd9c2b8eb84225b6db398a72008285fafc98631b1ff8d2229680257"|' oracle-java8-installer.* \
     && sed -i 's|J_DIR=jdk1.8.0_151|J_DIR=jdk1.8.0_162|' oracle-java8-installer.* \
-    && apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default) \
+    && apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default)) \
     \
     && apt-get install -yqq --no-install-recommends \
         $buildDeps \
@@ -163,7 +163,8 @@ EXPOSE 8080 5555 8793
 USER airflow
 WORKDIR ${AIRFLOW_HOME}
 
-RUN mkdir -p $AIRFLOW_HOME/.ssh \
-    && ssh-keygen -f '$AIRFLOW_HOME/.ssh/id_rsa' -t rsa -N '' -C "airflow@airflow.com"
+# gen ssh-key
+# RUN mkdir -p $AIRFLOW_HOME/.ssh \
+#     && ssh-keygen -f '$AIRFLOW_HOME/.ssh/id_rsa' -t rsa -N '' -C "airflow@airflow.com"
 
 ENTRYPOINT ["/entrypoint.sh"]
