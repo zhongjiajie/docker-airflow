@@ -34,7 +34,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # beeline
 ENV BEELINE_HOME /usr/local/beeline
-ENV HIVE_VERSION 1.2.0
+ENV HIVE_VERSION 1.1.0
 COPY beeline $BEELINE_HOME
 
 RUN set -ex \
@@ -111,7 +111,7 @@ RUN set -ex \
     # https://github.com/sutoiku/docker-beeline
     && mkdir -p $BEELINE_HOME/lib $BEELINE_HOME/conf \
     && echo "$HIVE_VERSION" > $BEELINE_HOME/lib/hive.version \
-    && (curl -L https://s3.amazonaws.com/stoic-public/hive-beeline-1.2.0-fetchSize.jar -o $BEELINE_HOME/lib/hive-beeline-1.2.0-fetchSize.jar || curl -L http://central.maven.org/maven2/org/apache/hive/hive-beeline/$HIVE_VERSION/hive-beeline-$HIVE_VERSION.jar -o $BEELINE_HOME/lib/hive-beeline-$HIVE_VERSION.jar) \
+    && curl -L http://central.maven.org/maven2/org/apache/hive/hive-beeline/$HIVE_VERSION/hive-beeline-$HIVE_VERSION.jar -o $BEELINE_HOME/lib/hive-beeline-$HIVE_VERSION.jar \
     && curl -L http://central.maven.org/maven2/org/apache/hive/hive-jdbc/$HIVE_VERSION/hive-jdbc-$HIVE_VERSION-standalone.jar -o $BEELINE_HOME/lib/hive-jdbc-$HIVE_VERSION-standalone.jar \
     && curl -L http://central.maven.org/maven2/commons-cli/commons-cli/1.2/commons-cli-1.2.jar -o $BEELINE_HOME/lib/commons-cli-1.2.jar \
     && curl -L http://central.maven.org/maven2/org/apache/hadoop/hadoop-common/2.7.3/hadoop-common-2.7.3.jar -o $BEELINE_HOME/lib/hadoop-common-2.7.3.jar \
