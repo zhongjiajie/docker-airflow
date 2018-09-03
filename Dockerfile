@@ -81,6 +81,7 @@ RUN set -ex \
     # && sed -i 's|J_DIR=jdk1.8.0_151|J_DIR=jdk1.8.0_162|' oracle-java8-installer.* \
     # && apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default)) \
     # \
+    echo 'deb http://deb.debian.org/debian jessie-backports main' > /etc/apt/sources.list.d/jessie-backports.list && \
     && apt-get update -yqq \
     && apt-get upgrade -yqq \
     && apt-get install -yqq --no-install-recommends \
@@ -101,7 +102,9 @@ RUN set -ex \
         # https://github.com/dropbox/PyHive/issues/161
         libsasl2-modules \
         libaio1 \
-        openjdk-8-jre \
+        jessie-backports \
+        openjdk-8-jre-headless \
+        ca-certificates-java \
     # install oracle db basic
     # todo last to change baidu yun pan
     && curl -L https://github.com/sergeymakinen/docker-oracle-instant-client/raw/assets/oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR-basic-$ORACLE_INSTANTCLIENT_VERSION-1.x86_64.rpm -o /oracle-basic.rpm \
