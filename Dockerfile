@@ -52,7 +52,6 @@ RUN set -ex \
         git \
         alien \
         gcc \
-        gnupg2 \
     ' \
     # only need in dev env
     && testDeps=' \
@@ -63,11 +62,25 @@ RUN set -ex \
         sudo \
         ssh \
     ' \
-    # add Oracle java ppa and key
-    && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list \
-    && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list \
-    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 \
-    \
+    # # add Oracle java ppa and key
+    # && echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list \
+    # && echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list \
+    # && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 \
+    # \
+    # # install oracle java
+    # # https://stackoverflow.com/a/46815898/7152658
+    # # https://ubuntuforums.org/showthread.php?t=2374686&page=4
+    # && mkdir -p /usr/share/man/man1/ \
+    # && echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections \
+    # && echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections \
+    # && (apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default || (true \
+    # && cd /var/lib/dpkg/info \
+    # && sed -i 's|JAVA_VERSION=8u151|JAVA_VERSION=8u162|' oracle-java8-installer.* \
+    # && sed -i 's|PARTNER_URL=http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/|PARTNER_URL=http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/|' oracle-java8-installer.* \
+    # && sed -i 's|SHA256SUM_TGZ="c78200ce409367b296ec39be4427f020e2c585470c4eed01021feada576f027f"|SHA256SUM_TGZ="68ec82d47fd9c2b8eb84225b6db398a72008285fafc98631b1ff8d2229680257"|' oracle-java8-installer.* \
+    # && sed -i 's|J_DIR=jdk1.8.0_151|J_DIR=jdk1.8.0_162|' oracle-java8-installer.* \
+    # && apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default)) \
+    # \
     && apt-get update -yqq \
     && apt-get upgrade -yqq \
     && apt-get install -yqq --no-install-recommends \
@@ -89,20 +102,7 @@ RUN set -ex \
         libsasl2-modules \
         libmysqlclient-dev \
         libaio1 \
-        # install oracle java
-    # https://stackoverflow.com/a/46815898/7152658
-    # https://ubuntuforums.org/showthread.php?t=2374686&page=4
-    && mkdir -p /usr/share/man/man1/ \
-    && echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections \
-    && echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections \
-    && (apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default || (true \
-    && cd /var/lib/dpkg/info \
-    && sed -i 's|JAVA_VERSION=8u151|JAVA_VERSION=8u162|' oracle-java8-installer.* \
-    && sed -i 's|PARTNER_URL=http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/|PARTNER_URL=http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/|' oracle-java8-installer.* \
-    && sed -i 's|SHA256SUM_TGZ="c78200ce409367b296ec39be4427f020e2c585470c4eed01021feada576f027f"|SHA256SUM_TGZ="68ec82d47fd9c2b8eb84225b6db398a72008285fafc98631b1ff8d2229680257"|' oracle-java8-installer.* \
-    && sed -i 's|J_DIR=jdk1.8.0_151|J_DIR=jdk1.8.0_162|' oracle-java8-installer.* \
-    && apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default)) \
-    \
+        openjdk-8-jre \
     # install oracle db basic
     # todo last to change baidu yun pan
     && curl -L https://github.com/sergeymakinen/docker-oracle-instant-client/raw/assets/oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR-basic-$ORACLE_INSTANTCLIENT_VERSION-1.x86_64.rpm -o /oracle-basic.rpm \
@@ -132,7 +132,7 @@ RUN set -ex \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
     && useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow \
-    && pip install -U pip setuptools wheel \
+    # && pip install -U pip setuptools wheel \
     && echo "airflow:airflow" | chpasswd \
     && adduser airflow sudo \
     && python -m pip install -U pip setuptools wheel \
@@ -159,8 +159,8 @@ RUN set -ex \
         /usr/share/man \
         /usr/share/doc \
         /usr/share/doc-base \
-        /oracle*.rpm \
-        /var/cache/oracle-jdk8-installer
+        /oracle*.rpm
+        # /var/cache/oracle-jdk8-installer
 
 COPY script/entrypoint.sh /entrypoint.sh
 COPY config/airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
