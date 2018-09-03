@@ -100,7 +100,6 @@ RUN set -ex \
         libsasl2-dev \
         # https://github.com/dropbox/PyHive/issues/161
         libsasl2-modules \
-        libmysqlclient-dev \
         libaio1 \
         openjdk-8-jre \
     # install oracle db basic
