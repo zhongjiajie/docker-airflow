@@ -102,7 +102,6 @@ RUN set -ex \
         # https://github.com/dropbox/PyHive/issues/161
         libsasl2-modules \
         libaio1 \
-        jessie-backports \
         openjdk-8-jre-headless \
         ca-certificates-java \
     # install oracle db basic
