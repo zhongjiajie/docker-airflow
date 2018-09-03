@@ -38,8 +38,13 @@ ENV BEELINE_HOME /usr/local/beeline
 ENV HIVE_VERSION 1.1.0
 COPY beeline $BEELINE_HOME
 
-RUN set -ex \
-    && buildDeps=' \
+RUN set -ex;\
+	\
+# deal with slim variants not having man page directories (which causes "update-alternatives" to fail)
+	if [ ! -d /usr/share/man/man1 ]; then \
+		mkdir -p /usr/share/man/man1; \
+	fi; \
+    buildDeps=' \
         python3-dev \
         libkrb5-dev \
         libsasl2-dev \
@@ -84,9 +89,6 @@ RUN set -ex \
     # && echo 'deb http://deb.debian.org/debian jessie-backports main' > /etc/apt/sources.list.d/jessie-backports.list \
     && apt-get update -yqq \
     && apt-get upgrade -yqq \
-    && if [ ! -d /usr/share/man/man1 ]; then \
-		mkdir -p /usr/share/man/man1; \
-	fi; \
     && apt-get install -yqq --no-install-recommends \
         $buildDeps \
         $testDeps \
