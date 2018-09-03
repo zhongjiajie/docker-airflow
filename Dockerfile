@@ -31,7 +31,7 @@ ENV ORACLE /usr/lib/oracle
 ENV ORACLE_HOME $ORACLE/$ORACLE_INSTANTCLIENT_MAJOR/client64
 
 # Java
-ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+# ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
 
 # beeline
 ENV BEELINE_HOME /usr/local/beeline
@@ -81,9 +81,12 @@ RUN set -ex \
     # && sed -i 's|J_DIR=jdk1.8.0_151|J_DIR=jdk1.8.0_162|' oracle-java8-installer.* \
     # && apt-get install -yqq --no-install-recommends --force-yes oracle-java8-installer oracle-java8-set-default)) \
     # \
-    && echo 'deb http://deb.debian.org/debian jessie-backports main' > /etc/apt/sources.list.d/jessie-backports.list \
+    # && echo 'deb http://deb.debian.org/debian jessie-backports main' > /etc/apt/sources.list.d/jessie-backports.list \
     && apt-get update -yqq \
     && apt-get upgrade -yqq \
+    && if [ ! -d /usr/share/man/man1 ]; then \
+		mkdir -p /usr/share/man/man1; \
+	fi; \
     && apt-get install -yqq --no-install-recommends \
         $buildDeps \
         $testDeps \
@@ -102,7 +105,7 @@ RUN set -ex \
         # https://github.com/dropbox/PyHive/issues/161
         libsasl2-modules \
         libaio1 \
-        openjdk-8-jre-headless \
+        penjdk-8-jre-headless \
         ca-certificates-java \
     # install oracle db basic
     # todo last to change baidu yun pan
