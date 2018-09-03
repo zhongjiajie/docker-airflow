@@ -12,8 +12,9 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV TERM linux
 
 # Airflow
-ARG AIRFLOW_VERSION=1.9.0
+ARG AIRFLOW_VERSION=1.10.0
 ARG AIRFLOW_HOME=/usr/local/airflow
+ENV AIRFLOW_GPL_UNIDECODE yes
 
 # Define en_US.
 ENV LANGUAGE en_US.UTF-8
@@ -41,6 +42,7 @@ RUN set -ex \
     && buildDeps=' \
         python3-dev \
         libkrb5-dev \
+        libsasl2-dev \
         libssl-dev \
         libffi-dev \
         build-essential \
@@ -66,6 +68,7 @@ RUN set -ex \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 \
     \
     && apt-get update -yqq \
+    && apt-get upgrade -yqq \
     # install oracle java
     # https://stackoverflow.com/a/46815898/7152658
     # https://ubuntuforums.org/showthread.php?t=2374686&page=4
@@ -83,8 +86,12 @@ RUN set -ex \
     && apt-get install -yqq --no-install-recommends \
         $buildDeps \
         $testDeps \
+        build-essential \
         python3-pip \
         python3-requests \
+        mysql-client \
+        mysql-server \
+        default-libmysqlclient-dev \
         apt-utils \
         curl \
         rsync \
@@ -124,6 +131,7 @@ RUN set -ex \
     && locale-gen \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
     && useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow \
+    && pip install -U pip setuptools wheel \
     && echo "airflow:airflow" | chpasswd \
     && adduser airflow sudo \
     && python -m pip install -U pip setuptools wheel \
@@ -132,8 +140,8 @@ RUN set -ex \
     && pip install pyOpenSSL \
     && pip install ndg-httpsclient \
     && pip install pyasn1 \
-    && pip install apache-airflow[crypto,celery,postgres,hive,jdbc]==$AIRFLOW_VERSION \
-    && pip install celery[redis]==4.0.2 \
+    && pip install apache-airflow[crypto,celery,postgres,hive,jdbc,mysql]==$AIRFLOW_VERSION \
+    && pip install 'celery[redis]>=4.1.1,<4.2.0' \
     && pip install mysqlclient cx_Oracle paramiko\
     # import thrift_sasl usually fail, impyla need specific versions libraries
     # thrift<=0.10.0 thrift_sasl<=0.2.1 sasl<=0.2.1 impyla<=0.14.0
@@ -168,3 +176,4 @@ WORKDIR ${AIRFLOW_HOME}
 #     && ssh-keygen -f '$AIRFLOW_HOME/.ssh/id_rsa' -t rsa -N '' -C "airflow@airflow.com"
 
 ENTRYPOINT ["/entrypoint.sh"]
+CMD ["webserver"]
