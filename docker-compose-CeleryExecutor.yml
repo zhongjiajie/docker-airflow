@@ -1,12 +1,12 @@
 version: '2.1'
 services:
     redis:
-        image: 'redis'
+        image: redis:4.0.11
         restart: always
         # command: redis-server --requirepass redispass
 
     postgres:
-        image: postgres
+        image: postgres:10.5
         restart: always
         environment:
             - POSTGRES_USER=airflow
