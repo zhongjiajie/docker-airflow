@@ -87,6 +87,7 @@ CMD ["webserver"]   # set default arg for entrypoint
 
 FROM puckel_airflow AS airflow_package
 LABEL MAINTAINER=zhongjiajie955@hotmail.com
+USER root
 
 RUN set -ex \
     && apt-get update -yqq \
@@ -211,3 +212,5 @@ RUN set -ex \
         /usr/share/man \
         /usr/share/doc \
         /usr/share/doc-base
+
+USER airflow
