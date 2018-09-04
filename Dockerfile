@@ -87,6 +87,7 @@ CMD ["webserver"]   # set default arg for entrypoint
 
 FROM puckel_airflow AS airflow_package
 LABEL MAINTAINER=zhongjiajie955@hotmail.com
+# use USER root to apt-get
 USER root
 
 RUN set -ex \
@@ -109,6 +110,7 @@ RUN set -ex \
     # https://stackoverflow.com/questions/46573180/impyla-0-14-0-error-tsocket-object-has-no-attribute-isopen
     && pip install thrift==0.9.3 thrift_sasl==0.2.1 \
     # && (pip uninstall -y thrift_sasl thrift sasl six && pip install thrift_sasl==0.2.1 thrift==0.10.0) \
+    \
     && apt-get autoremove -yqq --purge \
     && apt-get clean \
     && rm -rf \
@@ -141,13 +143,42 @@ RUN set -ex \
     && ln -s $BEELINE_HOME/beeline /usr/bin/beeline \
     && chmod +x /usr/bin/beeline
 
-FROM beeline AS java
+# use https://github.com/docker-library/openjdk/blob/master/8/jre/slim/Dockerfile as example
+FROM beeline AS jre
 LABEL MAINTAINER=zhongjiajie955@hotmail.com
 
-# Java
-ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+ENV JAVA_HOME /docker-java-home/jre
 
-FROM java AS oracle_client
+# ENV JAVA_VERSION 8u151
+# ENV JAVA_DEBIAN_VERSION 8u151-b12-1~deb9u1
+
+# see https://bugs.debian.org/775775
+# and https://github.com/docker-library/java/issues/19#issuecomment-70546872
+# ENV CA_CERTIFICATES_JAVA_VERSION 20170531+nmu1
+
+RUN set -ex; \
+	\
+    # deal with slim variants not having man page directories (which causes "update-alternatives" to fail)
+	if [ ! -d /usr/share/man/man1 ]; then \
+		mkdir -p /usr/share/man/man1; \
+	fi; \
+	\
+	apt-get update; \
+	apt-get install -y \
+		openjdk-8-jre-headless \
+		ca-certificates-java \
+	; \
+	rm -rf /var/lib/apt/lists/*; \
+	\
+    # verify that "docker-java-home" returns what we expect
+	[ "$(readlink -f "$JAVA_HOME")" = "$(docker-java-home)" ]; \
+	\
+    # update-alternatives so that future installs of other OpenJDK versions don't change /usr/bin/java
+	update-alternatives --get-selections | awk -v home="$(readlink -f "$JAVA_HOME")" 'index($3, home) == 1 { $2 = "manual"; print | "update-alternatives --set-selections" }'; \
+    # ... and verify that it actually worked for one of the alternatives we care about
+	update-alternatives --query java | grep -q 'Status: manual'
+
+FROM jre AS oracle_client
 LABEL MAINTAINER=zhongjiajie955@hotmail.com
 
 # Oracle client base
@@ -157,13 +188,16 @@ ENV ORACLE /usr/lib/oracle
 ENV ORACLE_HOME $ORACLE/$ORACLE_INSTANTCLIENT_MAJOR/client64
 
 RUN set -ex \
+    buildDeps=' \
+        alien \
+        gcc \
+    ' \
     && apt-get update -yqq \
     && apt-get upgrade -yqq \
     && apt-get install -yqq --no-install-recommends \
+        $buildDeps \
         # 这个是干什么用的 是 oracle client 么
         libaio1 \
-        alien \
-        gcc \
     # install oracle db basic
     # todo last to change baidu yun pan
     && curl -L https://github.com/sergeymakinen/docker-oracle-instant-client/raw/assets/oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR-basic-$ORACLE_INSTANTCLIENT_VERSION-1.x86_64.rpm -o /oracle-basic.rpm \
@@ -172,6 +206,7 @@ RUN set -ex \
     && echo "$ORACLE_HOME/lib/" > /etc/ld.so.conf.d/oracle.conf \
     && ldconfig \
     \
+    && apt-get purge --auto-remove -yqq $buildDeps \
     && apt-get autoremove -yqq --purge \
     && apt-get clean \
     && rm -rf \
@@ -182,7 +217,6 @@ RUN set -ex \
         /usr/share/doc \
         /usr/share/doc-base \
         /oracle*.rpm
-        # /var/cache/oracle-jdk8-installer
 
 FROM oracle_client AS dev
 LABEL MAINTAINER=zhongjiajie955@hotmail.com
@@ -203,6 +237,7 @@ RUN set -ex \
     # change USER airflow password and make USER to sudo group
     && echo "airflow:airflow" | chpasswd \
     && adduser airflow sudo \
+    \
     && apt-get autoremove -yqq --purge \
     && apt-get clean \
     && rm -rf \
@@ -212,5 +247,3 @@ RUN set -ex \
         /usr/share/man \
         /usr/share/doc \
         /usr/share/doc-base
-
-USER airflow
