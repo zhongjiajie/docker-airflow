@@ -103,12 +103,13 @@ RUN set -ex \
     # && echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.config/pip/pip.conf \
     \
     && pip install mysqlclient cx_Oracle paramiko\
+    # NOTE!! TO BE DELETE
     # todo airflow 1.10 change pyhive to connect hiveserver2
     # import thrift_sasl usually fail, impyla need specific versions libraries
     # thrift<=0.10.0 thrift_sasl<=0.2.1 sasl<=0.2.1 impyla<=0.14.0
     # https://github.com/cloudera/impyla/issues/268
     # https://stackoverflow.com/questions/46573180/impyla-0-14-0-error-tsocket-object-has-no-attribute-isopen
-    && pip install thrift==0.9.3 thrift_sasl==0.2.1 \
+    # && pip install thrift==0.9.3 thrift_sasl==0.2.1 \
     # && (pip uninstall -y thrift_sasl thrift sasl six && pip install thrift_sasl==0.2.1 thrift==0.10.0) \
     \
     && apt-get autoremove -yqq --purge \
@@ -247,3 +248,7 @@ RUN set -ex \
         /usr/share/man \
         /usr/share/doc \
         /usr/share/doc-base
+
+USER airflow
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["webserver"]
