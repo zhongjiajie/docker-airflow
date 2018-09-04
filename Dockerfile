@@ -188,7 +188,7 @@ ENV ORACLE /usr/lib/oracle
 ENV ORACLE_HOME $ORACLE/$ORACLE_INSTANTCLIENT_MAJOR/client64
 
 RUN set -ex \
-    buildDeps=' \
+    && buildDeps=' \
         alien \
         gcc \
     ' \
