@@ -87,10 +87,22 @@ CMD ["webserver"]   # set default arg for entrypoint
 
 FROM puckel_airflow AS airflow_package
 LABEL MAINTAINER=zhongjiajie955@hotmail.com
+
+ARG AIRFLOW_VERSION=1.10.0
+
+# initial user script
+COPY script/create_user.py /create_user.py
+
 # use USER root to apt-get
 USER root
 
 RUN set -ex \
+    # gcc libkrb5-dev build-essential for apache-airflow[kerberos]
+    # todo python3-dev unknown
+    && buildDeps=' \
+        build-essential \
+        gcc \
+    ' \
     && apt-get update -yqq \
     && apt-get upgrade -yqq \
     && apt-get install -yqq --no-install-recommends \
@@ -98,11 +110,12 @@ RUN set -ex \
         libsasl2-dev \
         # https://github.com/dropbox/PyHive/issues/161
         libsasl2-modules \
-    # pypi from tsinghua to speed pip install
-    # && mkdir -p ~/.config/pip \
-    # && echo "[global]\nindex-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.config/pip/pip.conf \
-    \
-    && pip install mysqlclient cx_Oracle paramiko\
+        $buildDeps \
+    # see https://github.com/apache/incubator-airflow/blob/master/setup.py for more detail
+    && pip install apache-airflow[password,ssh,oracle,hdfs,elasticsearch,docker,kubernetes]==$AIRFLOW_VERSION \
+    # pip install apache-airflow[kerberos] failed, but need tarift_sasl to connect hive metadata
+    && pip install thrift_sasl>=0.2.0 \
+    # && pip install apache-airflow[all]==$AIRFLOW_VERSION \
     # NOTE!! TO BE DELETE
     # todo airflow 1.10 change pyhive to connect hiveserver2
     # import thrift_sasl usually fail, impyla need specific versions libraries
@@ -112,6 +125,7 @@ RUN set -ex \
     # && pip install thrift==0.9.3 thrift_sasl==0.2.1 \
     # && (pip uninstall -y thrift_sasl thrift sasl six && pip install thrift_sasl==0.2.1 thrift==0.10.0) \
     \
+    && apt-get purge --auto-remove -yqq $buildDeps \
     && apt-get autoremove -yqq --purge \
     && apt-get clean \
     && rm -rf \
@@ -132,7 +146,7 @@ COPY beeline $BEELINE_HOME
 
 RUN set -ex \
     # install beeline
-    # https://github.com/sutoiku/docker-beeline
+    # use https://github.com/sutoiku/docker-beeline as example
     && mkdir -p $BEELINE_HOME/lib $BEELINE_HOME/conf \
     && echo "$HIVE_VERSION" > $BEELINE_HOME/lib/hive.version \
     && curl -L http://central.maven.org/maven2/org/apache/hive/hive-beeline/$HIVE_VERSION/hive-beeline-$HIVE_VERSION.jar -o $BEELINE_HOME/lib/hive-beeline-$HIVE_VERSION.jar \
@@ -179,7 +193,7 @@ RUN set -ex; \
     # ... and verify that it actually worked for one of the alternatives we care about
 	update-alternatives --query java | grep -q 'Status: manual'
 
-FROM jre AS oracle_client
+FROM jre AS master
 LABEL MAINTAINER=zhongjiajie955@hotmail.com
 
 # Oracle client base
@@ -197,7 +211,7 @@ RUN set -ex \
     && apt-get upgrade -yqq \
     && apt-get install -yqq --no-install-recommends \
         $buildDeps \
-        # 这个是干什么用的 是 oracle client 么
+        # is this for oracle client ?
         libaio1 \
     # install oracle db basic
     # todo last to change baidu yun pan
@@ -219,22 +233,23 @@ RUN set -ex \
         /usr/share/doc-base \
         /oracle*.rpm
 
-FROM oracle_client AS dev
+FROM master AS dev
 LABEL MAINTAINER=zhongjiajie955@hotmail.com
 
 RUN set -ex \
-    && testDeps=' \
+    && devDeps=' \
         iputils-ping \
         telnet \
         wget \
         vim \
         sudo \
         ssh \
+        less \
     ' \
     && apt-get update -yqq \
     && apt-get upgrade -yqq \
     && apt-get install -yqq --no-install-recommends \
-        $testDeps \
+        $devDeps \
     # change USER airflow password and make USER to sudo group
     && echo "airflow:airflow" | chpasswd \
     && adduser airflow sudo \
@@ -249,6 +264,7 @@ RUN set -ex \
         /usr/share/doc \
         /usr/share/doc-base
 
+# use user airflow to connect postgres
 USER airflow
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["webserver"]
