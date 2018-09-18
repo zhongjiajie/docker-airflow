@@ -6,14 +6,35 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/puckel/docker-airflow.svg)]()
 [![Docker Stars](https://img.shields.io/docker/stars/puckel/docker-airflow.svg)]()
 
-项目基于[puckel/docker-airflow](https://github.com/puckel/docker-airflow)，进行了如下的增加
+---
 
-* Python sdk
-  * cx-Oracle: 先在[Instant Client Downloads for Linux x86-64](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html)下载`basic devel sqlplus`三个rpm包，然后放入`/oracle_rpm`目录
-  * mysqlclient
-* Oracle-jdk8
+***WHAT THIS REPO DONE***
 
-以下是原项目的README内容：
+this repo base on [puckel/docker-airflow](https://github.com/puckel/docker-airflow) and make specific adding as following:
+
+* Dockerfile use Docker multi-stage which could convenient track upstream [puckel/docker-airflow](https://github.com/puckel/docker-airflow) and more easy to maintain and read
+* `docker build -t zhongjiajie/docker-ariflow --target=master .` to build master docker images without dev tools, and `docker build -t zhongjiajie/docker-airflow .` build docker images in dev stage with dev tool
+* airflow adding package: Docker stage **airflow_package** install adding package including `apache-airflow[password,ssh,oracle,hdfs,elasticsearch,docker,kubernetes]` and `thrift_sasl>=0.2.0` to use hiveserver2 Ad Hoc Query **install apache-airflow[kerberos] failed** and still can not slove
+* beeline support: Docker stage **beeline** and **jre** install beeline with HIVE version `1.1.0` and jre-8
+* oracle client: Docker stage **master** install oracle client to suport python `cx_Oracle`
+* dev tool: Docker stage **dev** install dev tool such as `vim ssh less wget sudo ping telnet`
+
+## to create airflow user
+
+need authentication to webserver by default, to create or replace user do something like that
+
+```shell
+docker exec --rm -it <airflow-container> python /create_user.py
+```
+
+## todo
+
+* [ ] install `apache-airflow[kerberos]`
+* [ ] how to fix `sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) FATAL: sorry, too many clinets already`
+
+***WHAT SRC REPO README AS FOLLOWING***
+
+---
 
 This repository contains **Dockerfile** of [apache-airflow](https://github.com/apache/incubator-airflow) for [Docker](https://www.docker.com/)'s [automated build](https://registry.hub.docker.com/u/puckel/docker-airflow/) published to the public [Docker Hub Registry](https://registry.hub.docker.com/).
 

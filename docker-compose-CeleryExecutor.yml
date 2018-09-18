@@ -13,12 +13,12 @@ services:
             - POSTGRES_PASSWORD=airflow
             - POSTGRES_DB=airflow
         # Uncomment these lines to persist data on the local filesystem.
-        #     - PGDATA=/var/lib/postgresql/data/pgdata
-        # volumes:
-        #     - ./pgdata:/var/lib/postgresql/data/pgdata
+            - PGDATA=/var/lib/postgresql/data/pgdata
+        volumes:
+            - /srv/dockerData/airflow/pgdata:/var/lib/postgresql/data/pgdata
 
     webserver:
-        image: zhongjiajie/docker-airflow
+        image: test/ariflow
         restart: always
         depends_on:
             - postgres
@@ -32,10 +32,10 @@ services:
             # - POSTGRES_DB=airflow
             # - REDIS_PASSWORD=redispass
         volumes:
-            - ./dags:/usr/local/airflow/dags
-            - ./sql:/usr/local/airflow/sql
-            # Uncomment to include custom plugins
-            # - ./plugins:/usr/local/airflow/plugins
+            - /srv/dockerData/airflow/dags:/usr/local/airflow/dags
+            - /srv/dockerData/airflow/sql:/usr/local/airflow/sql
+            - /srv/dockerData/airflow/plugins:/usr/local/airflow/plugins
+            - /srv/dockerData/airflow/logs/webserver:/usr/local/airflow/logs
         ports:
             - "20080:8080"
         command: webserver
@@ -46,7 +46,7 @@ services:
             retries: 3
 
     flower:
-        image: zhongjiajie/docker-airflow
+        image: test/ariflow
         restart: always
         depends_on:
             - redis
@@ -58,15 +58,15 @@ services:
         command: flower
 
     scheduler:
-        image: zhongjiajie/docker-airflow
+        image: test/ariflow
         restart: always
         depends_on:
             - webserver
         volumes:
-            - ./dags:/usr/local/airflow/dags
-            - ./sql:/usr/local/airflow/sql
-            # Uncomment to include custom plugins
-            # - ./plugins:/usr/local/airflow/plugins
+            - /srv/dockerData/airflow/dags:/usr/local/airflow/dags
+            - /srv/dockerData/airflow/sql:/usr/local/airflow/sql
+            - /srv/dockerData/airflow/plugins:/usr/local/airflow/plugins
+            - /srv/dockerData/airflow/logs/scheduler:/usr/local/airflow/logs
         environment:
             - LOAD_EX=n
             - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
@@ -78,15 +78,15 @@ services:
         command: scheduler
 
     worker:
-        image: zhongjiajie/docker-airflow
+        image: test/ariflow
         restart: always
         depends_on:
             - scheduler
         volumes:
-            - ./dags:/usr/local/airflow/dags
-            - ./sql:/usr/local/airflow/sql
-            # Uncomment to include custom plugins
-            # - ./plugins:/usr/local/airflow/plugins
+            - /srv/dockerData/airflow/dags:/usr/local/airflow/dags
+            - /srv/dockerData/airflow/sql:/usr/local/airflow/sql
+            - /srv/dockerData/airflow/plugins:/usr/local/airflow/plugins
+            - /srv/dockerData/airflow/logs/worker:/usr/local/airflow/logs
         environment:
             - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
             - EXECUTOR=Celery

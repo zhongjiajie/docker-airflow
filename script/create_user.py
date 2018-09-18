@@ -8,12 +8,12 @@ from airflow import models, settings
 from airflow.contrib.auth.backends.password_auth import PasswordUser
 
 IS_CORRECT = "Y"
-HINT_THIS_SCRIPT = "YOU RUN THIS SCRIPT TO CREATE AIRFLOW USER NOW\n"
-HINT_USER = "Please enter airflow username: "
-HINT_EMAIL_WITH_USER = "Please enter email for airflow user `{username}`: "
-HINT_PASSWORD_WITH_USER = "Please enter password for airflow user `{username}`: "
-HINT_CONFIRM_USER_PASSWORD = "\nhint!! > you want to add user with `{username}` and `{email}`\n" \
-    "enter 'Y/y' to confirm the information\nor enter other key to update information\n>> "
+HINT_THIS_SCRIPT = "\nhint!!\n==> YOU RUN THIS SCRIPT TO CREATE AIRFLOW USER NOW\n"
+HINT_USER = "Please enter username you want to create: "
+HINT_EMAIL_WITH_USER = "Please enter email for user `{username}`: "
+HINT_PASSWORD_WITH_USER = "Please enter password for user `{username}`: "
+HINT_CONFIRM_USER_PASSWORD = "\nhint!! > you want to add user `{username}` with email `{email}`\n" \
+    "enter 'Y/y' to confirm the information\nor enter other key to reinput information\n>> "
 
 user = PasswordUser(models.User())
 

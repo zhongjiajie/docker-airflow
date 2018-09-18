@@ -115,6 +115,10 @@ RUN set -ex \
     && pip install apache-airflow[password,ssh,oracle,hdfs,elasticsearch,docker,kubernetes]==$AIRFLOW_VERSION \
     # pip install apache-airflow[kerberos] failed, but need tarift_sasl to connect hive metadata
     && pip install thrift_sasl>=0.2.0 \
+    # install ipython to use `from Ipython import embed; embed()` to debug easier
+    && pip install ipython \
+        hdfs \
+        pyarrow \
     # && pip install apache-airflow[all]==$AIRFLOW_VERSION \
     # NOTE!! TO BE DELETE
     # todo airflow 1.10 change pyhive to connect hiveserver2
