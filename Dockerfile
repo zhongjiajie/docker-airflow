@@ -242,7 +242,7 @@ LABEL MAINTAINER=zhongjiajie955@hotmail.com
 
 RUN set -ex \
     && curl -o /tmp/datax.tar.gz -LO http://datax-opensource.oss-cn-hangzhou.aliyuncs.com/datax.tar.gz \
-    && tar -zxvf /tmp/datax.tar.gz -C /datax \
+    && tar -zxvf /tmp/datax.tar.gz -C / \
     && rm -rf /tmp/*
 
 FROM datax AS dev
