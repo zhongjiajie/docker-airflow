@@ -114,7 +114,7 @@ RUN set -ex \
     # see https://github.com/apache/incubator-airflow/blob/master/setup.py for more detail
     && pip install apache-airflow[password,ssh,oracle,hdfs,elasticsearch,docker,kubernetes]==$AIRFLOW_VERSION \
     # pip install apache-airflow[kerberos] failed, but need tarift_sasl to connect hive metadata
-    && pip install thrift_sasl>=0.2.0 \
+    && pip install 'thrift_sasl>=0.2.0' \
     # install ipython to use `from Ipython import embed; embed()` to debug easier
     && pip install ipython \
         hdfs \
@@ -197,7 +197,7 @@ RUN set -ex; \
     # ... and verify that it actually worked for one of the alternatives we care about
 	update-alternatives --query java | grep -q 'Status: manual'
 
-FROM jre AS master
+FROM jre AS oracle_client
 LABEL MAINTAINER=zhongjiajie955@hotmail.com
 
 # Oracle client base
@@ -237,7 +237,15 @@ RUN set -ex \
         /usr/share/doc-base \
         /oracle*.rpm
 
-FROM master AS dev
+FROM oracle_client AS datax
+LABEL MAINTAINER=zhongjiajie955@hotmail.com
+
+RUN set -ex \
+    && curl -o /tmp/datax.tar.gz -LO http://datax-opensource.oss-cn-hangzhou.aliyuncs.com/datax.tar.gz \
+    && tar -zxvf datax.tar.gz -C /datax \
+    && rm -rf /tmp/*
+
+FROM datax AS dev
 LABEL MAINTAINER=zhongjiajie955@hotmail.com
 
 RUN set -ex \
