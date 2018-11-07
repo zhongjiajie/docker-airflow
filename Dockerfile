@@ -317,8 +317,9 @@ RUN set -ex \
 	&& apk add --virtual .python-rundeps $runDeps \
 	&& apk del .build-deps \
 	&& rm -rf /usr/src/python ~/.cache \
-    && rm /usr/local/bin/pip
+    && rm /usr/local/bin/pip \
     && cp /usr/local/bin/pip3.6 /usr/local/bin/pip  # reenable pip3 \
+    && rm /usr/local/bin/python \
     && cp /usr/local/bin/python3.6 /usr/local/bin/python  # reenable python3
 
 
