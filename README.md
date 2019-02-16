@@ -1,4 +1,17 @@
 # docker-airflow
+
+## What I do on this repo
+
+This repo is base on nearly not maintenance repo [puckel/docker-airflow](https://github.com/puckel/docker-airflow), and I maintain it when someone find bug in source repo.
+
+This repo have **TWO** main branch, **master** and **custom**. master is downstream of source repo and custom is production environment of myself.
+
+I had done following things up to now:
+
+* Fix [issue-254:Sequential Executor bug](https://github.com/puckel/docker-airflow/issues/254)
+
+---
+
 [![CircleCI](https://circleci.com/gh/puckel/docker-airflow/tree/master.svg?style=svg)](https://circleci.com/gh/puckel/docker-airflow/tree/master)
 [![Docker Build Status](https://img.shields.io/docker/build/puckel/docker-airflow.svg)]()
 
