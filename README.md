@@ -9,6 +9,7 @@ This repo have **TWO** main branch, **master** and **custom**. master is downstr
 I had done following things up to now:
 
 * Fix [issue-254:Sequential Executor bug](https://github.com/puckel/docker-airflow/issues/254)
+* Add SQL Alchemy environment variable from [PR-253](https://github.com/puckel/docker-airflow/pull/253)
 
 ---
 
